@@ -4,6 +4,7 @@ APIs for the backend server
 
 # How to run:
 - run mongod locally with default port
+- npm i inside repo
 - run node app.js to start server
 
 # Postman sameple call:

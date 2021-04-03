@@ -3,11 +3,13 @@ const mongoose = require("mongoose")
 const schema = mongoose.Schema({
      _id: String, // ethereum address
     identifyingInfo: {
-        name: String,
+        name: String, // mandatory
         email: String,
         phone: String,
+        password: String,
         socialSecurity: Number,
         socialSecurityLastFour: Number,
+        passportId: String, 
         Address: String
     },
     financialInfo: {
@@ -22,7 +24,7 @@ const schema = mongoose.Schema({
         right: Object      
     },
     loans: [
-        {loanId: String}   
+        Object
     ]
 })
 

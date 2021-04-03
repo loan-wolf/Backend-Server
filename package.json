@@ -11,7 +11,9 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "merkletreejs": "^0.2.16",
     "mongodb": "^3.6.5",
-    "mongoose": "^5.12.2"
+    "mongoose": "^5.12.2",
+    "uuid": "^8.3.2"
   }
 }

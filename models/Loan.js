@@ -6,6 +6,7 @@ const schema = mongoose.Schema({
 	payment_contract_address: String,
     payment_contract_index: Number,
     payment_contract_documentation: String,
+	eth_address: String, 
 	approved: Boolean
 })
 

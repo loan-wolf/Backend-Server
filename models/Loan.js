@@ -1,13 +1,26 @@
 const mongoose = require("mongoose")
 
 const schema = mongoose.Schema({
-	_id: String,
-	borrower_address: String,
-	payment_contract_address: String,
-    payment_contract_index: Number,
-    payment_contract_documentation: String,
-	eth_address: String, 
-	approved: Boolean
-})
+    fullname: String,
+    email: String,
+    address: String,
+    passportid: String,
+    monthlysalary: Number,
+    monthlyspending: Number,
+    paymentcontractaddress: String,
+    erc20address: String,
+    loanamount: Number,
+    installmentinterval: Number,
+    tokentype: String,
+    duration: Number,
+    collateraltoken: String,
+    collateralamount: Number,
+    loanid: String,
+    type: String,
+    merkleroot: String,
+    isapproved: Boolean,
+    installmentinterval: Number,
+    installments: Number
+  })
 
 module.exports = mongoose.model("Loan", schema)

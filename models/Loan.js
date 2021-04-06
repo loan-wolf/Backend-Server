@@ -20,7 +20,8 @@ const schema = mongoose.Schema({
     merkleroot: String,
     isapproved: Boolean,
     installmentinterval: Number,
-    installments: Number
+    installments: Number,
+    accruedinterest: Number
   })
 
 module.exports = mongoose.model("Loan", schema)

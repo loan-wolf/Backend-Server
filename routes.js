@@ -27,7 +27,8 @@ router.post("/applyloan", async (req, res) => {
         erc20address: req.body.erc20address,
         isapproved: false,
         installmentinterval : 30,
-        installments: req.body.duration
+        installments: req.body.duration, 
+        accruedinterest: 0
       })
     try {
         await post.save()
@@ -94,10 +95,18 @@ router.get("/getlendedloans/:erc20address", async (req, res) => {
 
     for( var i = 0; i < post.loans.length; i++){ 
         const loan = await Loan.findOne({ loanid: post.loans[i] })
-        .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1})
+        .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "accruedinterest": 1})
         lendedLoans.push(loan)
     }
 	res.send(lendedLoans)
+})
+
+// Get all Loans detail
+router.get("/getlendeddetails/:loanid", async (req, res) => {
+	const posts = await Loan.find({loanid: req.params.loanid})
+    // .select({"loanid":0})
+    .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "installmentinterval": 1, "installments": 1, "accruedinterest": 1})
+	res.send(posts)
 })
 
 

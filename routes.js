@@ -1,7 +1,7 @@
 const express = require("express")
 const Loan = require("./models/Loan")
 const Lender = require("./models/Lender")
-const SHA256 = require('crypto-js/sha256')
+const sha3 = require('crypto-js/sha3');
 const { MerkleTree } = require('merkletreejs')
 const router = express.Router()
 
@@ -9,14 +9,24 @@ const router = express.Router()
 // Merkle root generated after info is obtained
 router.post("/applyloan", async (req, res) => {
     Loan.init()
+    const merkle = getMerkleTree({
+        fullname: req.body.fullname,
+        email: req.body.email,
+        address: req.body.address,
+        passportid: req.body.passportid,
+        monthlysalary: req.body.monthlysalary,
+        monthlyspending: req.body.monthlyspending,
+    })
     const post = new Loan({
+        _id: req.body.loanid,
         tokentype: req.body.tokentype,
         duration: req.body.duration,
         loanamount: req.body.loanamount,
         collateraltoken: req.body.collateraltoken,
         collateralamount: req.body.collateralamount,
         loanid: req.body.loanid,
-        merkleroot: req.body.tokentype,
+        merkleroot: merkle.root,
+        merkletree: merkle.tree,
         fullname: req.body.fullname,
         email: req.body.email,
         address: req.body.address,
@@ -40,6 +50,18 @@ router.post("/applyloan", async (req, res) => {
 	res.send(post)
 })
 
+function getMerkleTree(params) {
+
+    return buildTree(params)
+}
+
+function buildTree(jsonInput){
+    const leaves = Object.entries(jsonInput).map(x => sha3(x.toString(),{ outputLength: 256 }));
+    const tree = new MerkleTree(leaves, (x) => sha3(x, { outputLength: 256 } ));
+    const root = tree.bufferToHex(tree.getRoot());
+    return {tree: tree, root: root};
+}
+
 
 // Get all Loans associated with an erc20Address
 router.get("/getloans/:erc20address", async (req, res) => {
@@ -52,9 +74,9 @@ router.get("/getloans/:erc20address", async (req, res) => {
 
 // Get all Loans detail
 router.get("/getloansdetails/:loanid", async (req, res) => {
-	const posts = await Loan.find({loanid: req.params.loanid})
+	const posts = await Loan.find({_id: req.params.loanid})
     // .select({"loanid":0})
-    .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "installmentinterval": 1, "installments": 1})
+    .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "installmentinterval": 1, "installments": 1, "merkleroot": 1})
 	res.send(posts)
 })
 
@@ -106,7 +128,7 @@ router.get("/getlendedloans/:erc20address", async (req, res) => {
 
 // Get all Loans detail
 router.get("/getlendeddetails/:loanid", async (req, res) => {
-	const posts = await Loan.find({loanid: req.params.loanid})
+	const posts = await Loan.find({_id: req.params.loanid})
     // .select({"loanid":0})
     .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "installmentinterval": 1, "installments": 1, "accruedinterest": 1})
 	res.send(posts)

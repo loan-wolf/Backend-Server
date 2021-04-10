@@ -1,6 +1,7 @@
 const mongoose = require("mongoose")
 
 const schema = mongoose.Schema({
+    _id: String,
     fullname: String,
     email: String,
     address: String,
@@ -18,6 +19,7 @@ const schema = mongoose.Schema({
     loanid: String,
     type: String,
     merkleroot: String,
+    merkletree: Object,
     isapproved: Boolean,
     installmentinterval: Number,
     installments: Number,

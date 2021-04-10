@@ -1,7 +1,9 @@
 const express = require("express")
 const Loan = require("./models/Loan")
 const Lender = require("./models/Lender")
+const SHA256 = require('crypto-js/sha256')
 const sha3 = require('crypto-js/sha3');
+const crypto_js_1 = require("crypto-js");
 const { MerkleTree } = require('merkletreejs')
 const router = express.Router()
 
@@ -17,6 +19,7 @@ router.post("/applyloan", async (req, res) => {
         monthlysalary: req.body.monthlysalary,
         monthlyspending: req.body.monthlyspending,
     })
+    console.log(`merkle.tree`, merkle.tree)
     const post = new Loan({
         _id: req.body.loanid,
         tokentype: req.body.tokentype,
@@ -40,7 +43,6 @@ router.post("/applyloan", async (req, res) => {
         installments: req.body.duration, 
         accruedinterest: 0
       })
-      console.log("Hello",req);
     try {
         await post.save()
     } catch (err) {
@@ -56,10 +58,56 @@ function getMerkleTree(params) {
 }
 
 function buildTree(jsonInput){
-    const leaves = Object.entries(jsonInput).map(x => sha3(x.toString(),{ outputLength: 256 }));
+    const leaves = (Object.entries(jsonInput).map(x => sha3(x.toString(),{ outputLength: 256 })))
+    console.log(`leaves`, leaves)
     const tree = new MerkleTree(leaves, (x) => sha3(x, { outputLength: 256 } ));
     const root = tree.bufferToHex(tree.getRoot());
+    const hexLayers = tree.getHexLayers()
+    const hexLeaves = tree.getHexLeaves()
+    tree.leaves = hexLeaves
+    tree.layers = hexLayers
     return {tree: tree, root: root};
+}
+
+// Get all Loans associated with an erc20Address
+router.put("/getproof", async (req, res) => {
+	const posts = await Loan.find({_id: req.body.loanid})
+    const tree = posts[0].merkletree
+    const leafEncrypted = (Object.entries(req.body.leaf).map(x => sha3(x.toString(),{ outputLength: 256 })))
+    const proof = getProof(leafEncrypted[0], tree)
+	res.send(proof)
+})
+
+function getProof(leaf, tree,  index) {
+    leaf = MerkleTree.bufferify(leaf);
+    const proof = [];
+    if (!Number.isInteger(index)) {
+        index = -1;
+        
+        for (let i = 0; i < tree.leaves.length; i++) {
+            if (Buffer.compare(leaf, MerkleTree.bufferify(tree.leaves[i])) === 0) {
+                index = i;
+            }
+        }
+    }
+    if (index <= -1) {
+        return [];
+    }
+        for (let i = 0; i < tree.layers.length; i++) {
+            const layer = MerkleTree.bufferify(tree.layers[i]);
+            const isRightNode = index % 2;
+            const pairIndex = (isRightNode ? index - 1 : index + 1);
+            if (pairIndex < layer.length) {
+                proof.push({
+                    position: isRightNode ? 'left' : 'right',
+                    data: layer[pairIndex]
+                });
+            }
+            // set index to parent index
+            index = (index / 2) | 0;
+        }
+        return proof;
+
 }
 
 

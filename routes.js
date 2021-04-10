@@ -1,9 +1,7 @@
 const express = require("express")
 const Loan = require("./models/Loan")
 const Lender = require("./models/Lender")
-const SHA256 = require('crypto-js/sha256')
 const sha3 = require('crypto-js/sha3');
-const crypto_js_1 = require("crypto-js");
 const { MerkleTree } = require('merkletreejs')
 const router = express.Router()
 
@@ -19,7 +17,6 @@ router.post("/applyloan", async (req, res) => {
         monthlysalary: req.body.monthlysalary,
         monthlyspending: req.body.monthlyspending,
     })
-    console.log(`merkle.tree`, merkle.tree)
     const post = new Loan({
         _id: req.body.loanid,
         tokentype: req.body.tokentype,
@@ -59,7 +56,7 @@ function getMerkleTree(params) {
 
 function buildTree(jsonInput){
     const leaves = (Object.entries(jsonInput).map(x => sha3(x.toString(),{ outputLength: 256 })))
-    console.log(`leaves`, leaves)
+
     const tree = new MerkleTree(leaves, (x) => sha3(x, { outputLength: 256 } ));
     const root = tree.bufferToHex(tree.getRoot());
     const hexLayers = tree.getHexLayers()
@@ -125,7 +122,7 @@ router.get("/getloansdetails/:loanid", async (req, res) => {
 	const posts = await Loan.find({_id: req.params.loanid})
     // .select({"loanid":0})
     .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "installmentinterval": 1, "installments": 1, "merkleroot": 1})
-	res.send(posts)
+	res.send(posts[0])
 })
 
 router.get("/getloanunapproved", async (req, res) => {

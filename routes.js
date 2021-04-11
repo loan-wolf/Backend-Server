@@ -4,7 +4,6 @@ const Lender = require("./models/Lender")
 const sha3 = require('crypto-js/sha3');
 const { MerkleTree } = require('merkletreejs')
 const router = express.Router()
-const web3 = require("web3")
 
 // Add a Client Identifying Info
 // Merkle root generated after info is obtained

@@ -131,7 +131,7 @@ router.put("/updateloan", async (req, res) => {
 router.get("/getloansdetails/:loanid", async (req, res) => {
 	const posts = await Loan.find({_id: req.params.loanid})
     // .select({"loanid":0})
-    .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "installmentinterval": 1, "installments": 1, "merkleroot": 1})
+    .select({"_id":0, "loanid":1, "isapproved": 1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "installmentinterval": 1, "installments": 1, "merkleroot": 1})
 	res.send(posts[0])
 })
 
@@ -158,9 +158,6 @@ router.post("/buyloan", async (req, res) => {
             loans: [req.body.loanid],
           })
     }
-    const loan = await Loan.findOne({ loanid: req.body.loanid })
-    loan.isapproved = true
-    await loan.save()
     try {
         await post.save()
     } catch (err) {
@@ -175,7 +172,7 @@ router.get("/getlendedloans/:erc20address", async (req, res) => {
 
     for( var i = 0; i < post.loans.length; i++){ 
         const loan = await Loan.findOne({ loanid: post.loans[i] })
-        .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "accruedinterest": 1})
+        .select({"_id":0, "loanid":1, "isapproved": 1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "accruedinterest": 1})
         lendedLoans.push(loan)
     }
 	res.send(lendedLoans)
@@ -185,8 +182,8 @@ router.get("/getlendedloans/:erc20address", async (req, res) => {
 router.get("/getlendeddetails/:loanid", async (req, res) => {
 	const posts = await Loan.find({_id: req.params.loanid})
     // .select({"loanid":0})
-    .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "installmentinterval": 1, "installments": 1, "accruedinterest": 1})
-	res.send(posts)
+    .select({"_id":0, "loanid":1, "isapproved": 1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1, "installmentinterval": 1, "installments": 1, "accruedinterest": 1})
+	res.send(posts[0])
 })
 
 

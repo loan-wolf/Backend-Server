@@ -124,7 +124,7 @@ router.get("/getloans/:erc20address", async (req, res) => {
     console.log("This is req",req)
 	const posts = await Loan.find({erc20address: req.params.erc20address})
     // .select({"loanid":0})
-    .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1})
+    .select({"_id":0, "loanid":1, "isapproved":1,"loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1})
 	res.send(posts)
 })
 

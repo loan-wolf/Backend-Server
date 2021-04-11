@@ -4,6 +4,7 @@ const Lender = require("./models/Lender")
 const sha3 = require('crypto-js/sha3');
 const { MerkleTree } = require('merkletreejs')
 const router = express.Router()
+const web3 = require("web3")
 
 // Add a Client Identifying Info
 // Merkle root generated after info is obtained
@@ -35,7 +36,7 @@ router.post("/applyloan", async (req, res) => {
         monthlyspending: req.body.monthlyspending,
         paymentcontractaddress: req.body.paymentcontractaddress,
         erc20address: req.body.erc20address,
-        isapproved: false,
+        isapproved: "initiated",
         installmentinterval : 30,
         installments: req.body.duration, 
         accruedinterest: 0
@@ -58,12 +59,23 @@ function buildTree(jsonInput){
     const leaves = (Object.entries(jsonInput).map(x => sha3(x.toString(),{ outputLength: 256 })))
 
     const tree = new MerkleTree(leaves, (x) => sha3(x, { outputLength: 256 } ));
-    const root = tree.getRoot().toString('ascii');
+
+    let root = tree.bufferToHex(tree.getRoot());
+    root = hexToAscii(root)
     const hexLayers = tree.getHexLayers()
     const hexLeaves = tree.getHexLeaves()
     tree.leaves = hexLeaves
     tree.layers = hexLayers
     return {tree: tree, root: root};
+}
+
+function hexToAscii(str){
+    hexString = str;
+    strOut = '';
+        for (x = 0; x < hexString.length; x += 2) {
+            strOut += String.fromCharCode(parseInt(hexString.substr(x, 2), 16));
+        }
+    return strOut;    
 }
 
 // Get all Loans associated with an erc20Address
@@ -115,6 +127,13 @@ router.get("/getloans/:erc20address", async (req, res) => {
     // .select({"loanid":0})
     .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1})
 	res.send(posts)
+})
+
+// update loan status
+router.put("/updateloan", async (req, res) => {
+    const loan = await Loan.findOne({ loanid: req.body.loanid })
+    loan.isapproved = req.body.isapproved 
+	res.send(loan)
 })
 
 // Get all Loans detail

@@ -33,7 +33,8 @@ const tree = new MerkleTree([], (x) => sha3(x, { outputLength: 256 } ))
 let leafEncrypted = (Object.entries(apiParam.leaf).map(x => sha3(x.toString(),{ outputLength: 256 })))
 leafEncrypted = tree.bufferToHex(leafEncrypted)
 
-const merkleRoot = "0x93d372f1763d96f73fe93c9b1ce815d4ea3340af1db46b4f23353084db405065" // chainLink
+let merkleRoot = tree.bufferify("Srqv=w?i<hTj3@/4kO#50[@Pe")
+const merkleRoot1 = "0x93d372f1763d96f73fe93c9b1ce815d4ea3340af1db46b4f23353084db405065" // chainLink
 
 const testTree = tree.verify(proof, leafEncrypted, merkleRoot)
 

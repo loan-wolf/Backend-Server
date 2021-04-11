@@ -20,7 +20,7 @@ const schema = mongoose.Schema({
     type: String,
     merkleroot: String,
     merkletree: Object,
-    isapproved: Boolean,
+    isapproved: String,
     installmentinterval: Number,
     installments: Number,
     accruedinterest: Number

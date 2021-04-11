@@ -4,6 +4,7 @@ const Lender = require("./models/Lender")
 const sha3 = require('crypto-js/sha3');
 const { MerkleTree } = require('merkletreejs')
 const router = express.Router()
+const BN = require('bn.js');
 
 // Add a Client Identifying Info
 // Merkle root generated after info is obtained
@@ -59,8 +60,7 @@ function buildTree(jsonInput){
 
     const tree = new MerkleTree(leaves, (x) => sha3(x, { outputLength: 256 } ));
 
-    let root = tree.bufferToHex(tree.getRoot());
-    root = hexToAscii(root)
+    const root = new BN(tree.getRoot().toString('hex'), 16).toString();
     const hexLayers = tree.getHexLayers()
     const hexLeaves = tree.getHexLeaves()
     tree.leaves = hexLeaves
@@ -68,14 +68,6 @@ function buildTree(jsonInput){
     return {tree: tree, root: root};
 }
 
-function hexToAscii(str){
-    hexString = str;
-    strOut = '';
-        for (x = 0; x < hexString.length; x += 2) {
-            strOut += String.fromCharCode(parseInt(hexString.substr(x, 2), 16));
-        }
-    return strOut;    
-}
 
 // Get all Loans associated with an erc20Address
 router.put("/getproof", async (req, res) => {

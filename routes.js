@@ -58,7 +58,7 @@ function buildTree(jsonInput){
     const leaves = (Object.entries(jsonInput).map(x => sha3(x.toString(),{ outputLength: 256 })))
 
     const tree = new MerkleTree(leaves, (x) => sha3(x, { outputLength: 256 } ));
-    const root = tree.bufferToHex(tree.getRoot());
+    const root = tree.getRoot().toString('ascii');
     const hexLayers = tree.getHexLayers()
     const hexLeaves = tree.getHexLeaves()
     tree.leaves = hexLeaves

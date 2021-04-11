@@ -136,8 +136,8 @@ router.get("/getloansdetails/:loanid", async (req, res) => {
 })
 
 router.get("/getloanunapproved", async (req, res) => {
-	const posts = await Loan.find({isapproved: false})
-    .select({"_id":0, "loanid":1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1})
+	const posts = await Loan.find({isapproved: "initiated"})
+    .select({"_id":0, "loanid":1, "isapproved": 1, "loanamount":1, "duration":1, "collateraltoken":1, "collateralamount":1})
 	res.send(posts)
 })
 

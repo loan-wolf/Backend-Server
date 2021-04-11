@@ -124,6 +124,7 @@ router.get("/getloans/:erc20address", async (req, res) => {
 router.put("/updateloan", async (req, res) => {
     const loan = await Loan.findOne({ loanid: req.body.loanid })
     loan.isapproved = req.body.isapproved 
+    await loan.save()
 	res.send(loan)
 })
 
